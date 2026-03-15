@@ -29,7 +29,7 @@ argp = argparse.ArgumentParser(
     epilog=QT_HELP_TEXT,
     formatter_class=argparse.RawDescriptionHelpFormatter)
 
-argp.add_argument('--version', action='version', version='%(prog)s 0.4.3')
+argp.add_argument('--version', action='version', version='%(prog)s 0.5.0')
 
 grp = argp.add_argument_group(title='Widgets')
 
@@ -166,7 +166,7 @@ class Globals(QObject):
         self.restart_service.emit(read_only)
 
 
-REQUIRED_NBFC_VERSION = '0.3.16'
+REQUIRED_NBFC_VERSION = '0.4.0'
 GITHUB_URL = 'https://github.com/nbfc-linux/nbfc-linux'
 GLOBALS = Globals()
 

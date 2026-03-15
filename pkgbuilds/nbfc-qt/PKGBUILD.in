@@ -7,7 +7,7 @@ pkgdesc="Graphical User Interface (GUI) for NBFC-Linux (Qt-based)"
 arch=('any')
 url="https://github.com/nbfc-linux/nbfc-qt"
 makedepends=('python3')
-depends=('nbfc-linux>=0.3.17' 'python-pyqt6')
+depends=('nbfc-linux>=0.4.0' 'python-pyqt6')
 license=('GPL-3.0-only')
 source=("https://github.com/nbfc-linux/${pkgname}/archive/refs/tags/${pkgver}.tar.gz")
 sha256sums=('%SHA256%')
