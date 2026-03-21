@@ -1,41 +1,38 @@
-CONFIRMATION_TEXT = """\
-You are about to view configurations with names similar to your laptop model. <br />
+CONFIG_WARNING_TEXT = """\
+In this tab, you can select and apply a model configuration for your device.<br />
 <br />
-Please note that similar model names do not guarantee compatibility. The register configuration may be completely different. <br />
+<b>Warning</b>: Applying an incorrect configuration may cause serious and potentially irreversible damage to your hardware, especially the battery.<br />
 <br />
-Using a configuration that does <b>not exactly match</b> your laptop model can be <b>very dangerous and may cause hardware damage.</b> <br />
+Only use configurations that <b>exactly match</b> your model name.<br />
 <br />
-Please use the <b>Rated Configs</b> tab to find verified configuration recommendations for your device."""
+If no configuration matches your model name, you can use the <b>Rated Configs</b> tab to try other suitable configurations.\
+"""
 
-class ConfirmationDialog(QDialog):
-    def __init__(self, callback, parent=None):
-        super().__init__(parent)
+class BasicConfigWarning(QWidget):
+    def __init__(self, callback):
+        super().__init__()
         self.callback = callback
-        self.setModal(True)
-        self.setWindowTitle("Warning")
 
         layout = QVBoxLayout()
         self.setLayout(layout)
 
-        label = QLabel(CONFIRMATION_TEXT)
+        label = QLabel(CONFIG_WARNING_TEXT)
         label.setWordWrap(True)
         layout.addWidget(label)
 
         self.checkbox = QCheckBox("I understand the risks")
         layout.addWidget(self.checkbox)
 
-        button = QPushButton("Close")
-        button.clicked.connect(self.close_clicked)
+        button = QPushButton("Ok")
+        button.clicked.connect(self.ok_clicked)
         layout.addWidget(button)
 
-    def close_clicked(self):
+    def ok_clicked(self):
         self.callback(self.checkbox.isChecked())
-        self.accept()
 
-class BasicConfigWidget(QWidget):
+class BasicConfigCoreWidget(QWidget):
     def __init__(self):
         super().__init__()
-        self.confirmed_risks = False
 
         # =====================================================================
         # Layout
@@ -147,16 +144,6 @@ class BasicConfigWidget(QWidget):
             self.model_name_label.setText("<b>Could not get model name</b>")
 
     # =========================================================================
-    # Widget start / stop
-    # =========================================================================
-
-    def start(self):
-        pass
-
-    def stop(self):
-        pass
-
-    # =========================================================================
     # Helper functions
     # =========================================================================
 
@@ -224,18 +211,6 @@ class BasicConfigWidget(QWidget):
         self.update_configuration_combobox(configs)
 
     def list_recommended_radio_checked(self):
-        if not self.confirmed_risks:
-            def confirmation_dialog_exited(confirmed):
-                if confirmed:
-                    self.confirmed_risks = True
-                    self.list_recommended_radio.setChecked(True)
-                    self.list_recommended_radio_checked()
-
-            self.list_all_radio.setChecked(True)
-            dialog = ConfirmationDialog(confirmation_dialog_exited, self)
-            dialog.exec()
-            return
-
         self.select_file_button.setVisible(False)
         self.configurations_combobox.setVisible(True)
         self.set_button.setVisible(True)
@@ -257,3 +232,33 @@ class BasicConfigWidget(QWidget):
         path, _ = QFileDialog.getOpenFileName(self, "Choose Configuration File", "", "JSON Files (*.json)")
         if path:
             self.selected_config_input.setText(path)
+
+class BasicConfigWidget(QStackedWidget):
+    def __init__(self):
+        super().__init__()
+
+        self.basic_config_core_widget = BasicConfigCoreWidget()
+        self.basic_config_warning = BasicConfigWarning(self.warning_clicked)
+
+        self.addWidget(self.basic_config_core_widget)
+        self.addWidget(self.basic_config_warning)
+
+        self.setCurrentIndex(1)
+
+    # =========================================================================
+    # Widget start / stop
+    # =========================================================================
+
+    def start(self):
+        pass
+
+    def stop(self):
+        pass
+
+    # =========================================================================
+    # Signal functions
+    # =========================================================================
+
+    def warning_clicked(self, risk_confirmed):
+        if risk_confirmed:
+            self.setCurrentIndex(0)
