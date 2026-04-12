@@ -16,20 +16,20 @@ Installation
   - Package is available via the Arch User Repository:
     - `yay -S nbfc-qt`
   - Or manually:
-    - [Download Latest Version 0.4.3](https://github.com/nbfc-linux/nbfc-qt/releases/download/0.4.3/nbfc-qt-git-0.4.3-1-any.pkg.tar.zst)
-    - Install package: `pacman -U ./nbfc-qt-git-0.4.3-1-any.pkg.tar.zst`
+    - [Download Latest Version 0.5.1](https://github.com/nbfc-linux/nbfc-qt/releases/download/0.5.1/arch-linux-nbfc-qt-git-0.5.1-1-any.pkg.tar.zst)
+    - Install package: `pacman -U ./arch-linux-nbfc-qt-git-0.5.1-1-any.pkg.tar.zst`
 
 - Debian / Ubuntu:
-  - [Download Latest Version 0.4.3](https://github.com/nbfc-linux/nbfc-qt/releases/download/0.4.3/nbfc-qt_0.4.3_amd64.deb)
-  - Install package: `apt install ./nbfc-qt_0.4.3_amd64.deb`
+  - [Download Latest Version 0.5.1](https://github.com/nbfc-linux/nbfc-qt/releases/download/0.5.1/debian-nbfc-qt_0.5.1_amd64.deb)
+  - Install package: `apt install ./debian-nbfc-qt_0.5.1_amd64.deb`
 
 - Fedora:
-  - [Download Latest Version 0.4.3](https://github.com/nbfc-linux/nbfc-qt/releases/download/0.4.3/fedora-nbfc-qt-0.4.3-1.x86_64.rpm)
-  - Install package: `dnf install ./fedora-nbfc-qt-0.4.3-1.x86_64.rpm`
+  - [Download Latest Version 0.5.1](https://github.com/nbfc-linux/nbfc-qt/releases/download/0.5.1/fedora-nbfc-qt-0.5.1-1.x86_64.rpm)
+  - Install package: `dnf install ./fedora-nbfc-qt-0.5.1-1.x86_64.rpm`
 
 - OpenSuse (Tumbleweed):
-  - [Download Latest Version 0.4.3](https://github.com/nbfc-linux/nbfc-qt/releases/download/0.4.3/opensuse-nbfc-qt-0.4.3-1.x86_64.rpm)
-  - Install package: `zypper install ./opensuse-nbfc-qt-0.4.3-1.x86_64.rpm`
+  - [Download Latest Version 0.5.1](https://github.com/nbfc-linux/nbfc-qt/releases/download/0.5.1/opensuse-nbfc-qt-0.5.1-1.x86_64.rpm)
+  - Install package: `zypper install ./opensuse-nbfc-qt-0.5.1-1.x86_64.rpm`
 
 - In general:
   - make && sudo make install
