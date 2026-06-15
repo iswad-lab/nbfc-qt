@@ -2,7 +2,9 @@ class TemperatureSourcesWidget(QStackedWidget):
     def __init__(self):
         super().__init__()
 
-        GLOBALS.model_config_changed.connect(self.setup_ui)
+        self._has_setup = False
+
+        GLOBALS.model_config_changed.connect(self._on_model_config_changed)
 
         # =====================================================================
         # Error Widget
@@ -42,21 +44,27 @@ class TemperatureSourcesWidget(QStackedWidget):
 
         self.apply_buttons_widget = ApplyButtonsWidget()
         self.apply_buttons_widget.save_button.clicked.connect(self.save_button_clicked)
-        self.apply_buttons_widget.apply_button.clicked.connect(self.apply_button_clicked)
+        self.apply_buttons_widget.apply_button.clicked.connect(
+            self.apply_button_clicked
+        )
         main_layout.addWidget(self.apply_buttons_widget)
         self.addWidget(self.main_widget)
-
-        self.setup_ui()
 
     # =========================================================================
     # Widget start / stop
     # =========================================================================
 
     def start(self):
-        pass
+        if not self._has_setup:
+            self._has_setup = True
+            self.setup_ui()
 
     def stop(self):
         pass
+
+    def _on_model_config_changed(self):
+        self._has_setup = False
+        self.setup_ui()
 
     # =========================================================================
     # Helper functions
@@ -64,9 +72,9 @@ class TemperatureSourcesWidget(QStackedWidget):
 
     def save(self):
         config = GLOBALS.nbfc_client.get_service_config()
-        config['FanTemperatureSources'] = self.get_fan_temperature_sources()
-        if not len(config['FanTemperatureSources']):
-            del config['FanTemperatureSources']
+        config["FanTemperatureSources"] = self.get_fan_temperature_sources()
+        if not len(config["FanTemperatureSources"]):
+            del config["FanTemperatureSources"]
         GLOBALS.nbfc_client.set_service_config(config)
 
     def setup_ui(self, fix_errors=False):
@@ -81,7 +89,7 @@ class TemperatureSourcesWidget(QStackedWidget):
 
         try:
             config = GLOBALS.nbfc_client.get_service_config()
-            fan_temperature_sources = config.get('FanTemperatureSources', [])
+            fan_temperature_sources = config.get("FanTemperatureSources", [])
             model_config = GLOBALS.nbfc_client.get_model_configuration()
         except Exception as e:
             self.setCurrentWidget(self.error_widget)
@@ -103,20 +111,20 @@ class TemperatureSourcesWidget(QStackedWidget):
         # =====================================================================
 
         errors = validate_fan_temperature_sources(
-            fan_temperature_sources,
-            len(model_config['FanConfigurations']))
+            fan_temperature_sources, len(model_config["FanConfigurations"])
+        )
 
         if errors and not fix_errors:
             self.setCurrentWidget(self.error_widget)
-            self.error_label.setText('\n\n'.join(errors))
+            self.error_label.setText("\n\n".join(errors))
             self.fix_button.setEnabled(True)
             self.retry_button.setEnabled(True)
             self.apply_buttons_widget.disable("")
             return
         elif errors and fix_errors:
             fan_temperature_sources = fix_fan_temperature_sources(
-                fan_temperature_sources,
-                len(model_config['FanConfigurations']))
+                fan_temperature_sources, len(model_config["FanConfigurations"])
+            )
 
         self.setCurrentWidget(self.main_widget)
 
@@ -124,11 +132,11 @@ class TemperatureSourcesWidget(QStackedWidget):
         # Add widgets to self.tab_widget
         # =====================================================================
 
-        while self.tab_widget.count() < len(model_config['FanConfigurations']):
+        while self.tab_widget.count() < len(model_config["FanConfigurations"]):
             widget = TemperatureSourceWidget()
             self.tab_widget.addTab(widget, "")
 
-        while self.tab_widget.count() > len(model_config['FanConfigurations']):
+        while self.tab_widget.count() > len(model_config["FanConfigurations"]):
             last_index = self.tab_widget.count() - 1
             widget = self.tab_widget.widget(last_index)
             self.tab_widget.removeTab(last_index)
@@ -138,18 +146,20 @@ class TemperatureSourcesWidget(QStackedWidget):
         # Set fan names to tabs
         # =====================================================================
 
-        for i, fan_config in enumerate(model_config['FanConfigurations']):
+        for i, fan_config in enumerate(model_config["FanConfigurations"]):
             widget = self.tab_widget.widget(i)
-            self.tab_widget.setTabText(i, fan_config.get('FanDisplayName', 'Fan #%d' % i))
+            self.tab_widget.setTabText(
+                i, fan_config.get("FanDisplayName", "Fan #%d" % i)
+            )
             widget.set_available_sensors(available_sensors)
             widget.set_fan_index(i)
 
         # =====================================================================
-        # Update TemperatureSourceWidget 
+        # Update TemperatureSourceWidget
         # =====================================================================
 
         for fan_temperature_source in fan_temperature_sources:
-            fan_index = fan_temperature_source['FanIndex']
+            fan_index = fan_temperature_source["FanIndex"]
             widget = self.tab_widget.widget(fan_index)
             widget.update(fan_temperature_source)
 
@@ -179,7 +189,9 @@ class TemperatureSourcesWidget(QStackedWidget):
     def apply_button_clicked(self):
         try:
             self.save()
-            GLOBALS.restart_service.emit(self.apply_buttons_widget.read_only_checkbox.isChecked())
+            GLOBALS.restart_service.emit(
+                self.apply_buttons_widget.read_only_checkbox.isChecked()
+            )
         except Exception as e:
             show_error_message(self, "Error", str(e))
 
