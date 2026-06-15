@@ -91,6 +91,8 @@ class TemperatureSourcesWidget(QStackedWidget):
             config = GLOBALS.nbfc_client.get_service_config()
             fan_temperature_sources = config.get("FanTemperatureSources", [])
             model_config = GLOBALS.nbfc_client.get_model_configuration()
+            # Get available temperature sensors
+            available_sensors = GLOBALS.nbfc_client.get_available_sensors()
         except Exception as e:
             self.setCurrentWidget(self.error_widget)
             self.error_label.setText(str(e))
@@ -98,12 +100,6 @@ class TemperatureSourcesWidget(QStackedWidget):
             self.retry_button.setEnabled(True)
             self.apply_buttons_widget.disable("")
             return
-
-        # =====================================================================
-        # Get available temperature sensors
-        # =====================================================================
-
-        available_sensors = GLOBALS.nbfc_client.get_available_sensors()
 
         # =====================================================================
         # Ensure that the FanTemperatureSources in the config are valid.
