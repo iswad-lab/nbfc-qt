@@ -4,26 +4,23 @@ class JumpSlider(QSlider):
     def mousePressEvent(self, event):
         if event.button() == Qt.MouseButton.LeftButton:
             if self.orientation() == Qt.Horizontal:
-                half = self.width() // 20
                 pos = event.pos().x()
             else:
-                half = self.height() // 20
                 pos = event.pos().y()
 
-            # Click on track (not on handle) -> jump and start drag
+            # Click on track -> jump to position
             val = QStyle.sliderValueFromPosition(
-                self.minimum(),
-                self.maximum(),
-                pos,
-                self.width() if self.orientation() == Qt.Horizontal else self.height(),
+                self.minimum(), self.maximum(), pos,
+                self.width() if self.orientation() == Qt.Horizontal else self.height()
             )
             cur = self.value()
             diff = abs(val - cur)
-            # If click is "far" from current value, it's a track click
             if diff > 1:
                 self.setValue(val)
 
         super().mousePressEvent(event)
+        # Always emit on press so update_fan_speed disables auto mode
+        self.valueChanged.emit(self.value())
 
 
 class FanWidget(QWidget):
