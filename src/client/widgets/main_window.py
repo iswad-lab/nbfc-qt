@@ -120,8 +120,14 @@ class MainWindow(QMainWindow):
         self.tab_widget.addTab(self.widgets["sensors"], "Sensors")
         self.tab_widget.addTab(self.widgets["update"], "Update")
 
+        settings = QSettings("nbfc-qt", "nbfc-qt")
+        initial_tab = int(settings.value("window/active_tab", 0))
+        if initial_tab >= self.tab_widget.count():
+            initial_tab = 0
+
         self.tab_widget.currentChanged.connect(self.tab_widget_changed)
-        self.tab_widget_changed(0)
+        self.tab_widget.setCurrentIndex(initial_tab)
+        self.tab_widget_changed(initial_tab)
 
         # =====================================================================
         # Set widget
@@ -175,3 +181,7 @@ class MainWindow(QMainWindow):
                 widget.start()
             else:
                 widget.stop()
+
+        # Remember last active tab
+        settings = QSettings("nbfc-qt", "nbfc-qt")
+        settings.setValue("window/active_tab", current_index)
