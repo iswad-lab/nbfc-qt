@@ -50,6 +50,11 @@ class TemperatureSourcesWidget(QStackedWidget):
         main_layout.addWidget(self.apply_buttons_widget)
         self.addWidget(self.main_widget)
 
+        # Auto-refresh timer (retries every 5s when on error widget)
+        self._refresh_timer = QTimer(self)
+        self._refresh_timer.setInterval(5000)
+        self._refresh_timer.timeout.connect(self._auto_refresh)
+
     # =========================================================================
     # Widget start / stop
     # =========================================================================
@@ -58,9 +63,16 @@ class TemperatureSourcesWidget(QStackedWidget):
         if not self._has_setup:
             self._has_setup = True
             self.setup_ui()
+        self._refresh_timer.start()
 
     def stop(self):
-        pass
+        self._refresh_timer.stop()
+
+    def _auto_refresh(self):
+        """Silently retry when on error widget."""
+        if self.currentWidget() != self.error_widget:
+            return
+        self.setup_ui()
 
     def _on_model_config_changed(self):
         self._has_setup = False
@@ -95,7 +107,16 @@ class TemperatureSourcesWidget(QStackedWidget):
             available_sensors = GLOBALS.nbfc_client.get_available_sensors()
         except Exception as e:
             self.setCurrentWidget(self.error_widget)
-            self.error_label.setText(str(e))
+            msg = str(e)
+            if "timed out" in msg.lower():
+                msg = "The NBFC service is not responding. Start it in the Service tab first."
+            elif "Could not find" in msg:
+                msg = "The `nbfc` CLI program is not installed or not in PATH."
+            elif "Is the service running" in msg:
+                msg = "The NBFC service is not running. Start it in the Service tab first."
+            elif "No temperature sources" in msg:
+                msg = "No temperature sensors detected on your system."
+            self.error_label.setText(msg)
             self.fix_button.setEnabled(False)
             self.retry_button.setEnabled(True)
             self.apply_buttons_widget.disable("")
